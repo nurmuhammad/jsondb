@@ -26,6 +26,10 @@ public class BaseObject {
         jsonObject = jsonElement.getAsJsonObject();
     }
 
+    public BaseObject(String collection) {
+        this.collection = collection;
+    }
+
     public BaseObject() {
     }
 
@@ -74,9 +78,7 @@ public class BaseObject {
         return this;
     }
 
-    public Object get(String name) {
-        if ("id".equalsIgnoreCase(name)) return getId();
-        if ("collection".equalsIgnoreCase(name)) return getCollection();
+    public JsonElement get(String name) {
         return getJsonObject().get(name);
     }
 
