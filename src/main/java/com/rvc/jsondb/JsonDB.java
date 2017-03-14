@@ -17,6 +17,7 @@ public class JsonDB {
 
     public JsonDB(String path) {
         this.path = path;
+
     }
 
     public BaseObject save(BaseObject baseObject, String collection){
