@@ -1,2 +1,2 @@
 # jsondb
-simple embedded json database
+Simple embedded json database
