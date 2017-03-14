@@ -1,16 +1,33 @@
 package com.rvc.jsondb;
 
-import org.json.simple.JSONObject;
+import com.google.gson.*;
 
 /**
  * @author Nurmuhammad
  */
 
 public class BaseObject {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private String id;
     private String collection;
-    private JSONObject jsonObject;
+    private JsonObject jsonObject;
+
+    public BaseObject(String id, String collection, JsonObject jsonObject) {
+        this.id = id;
+        this.collection = collection;
+        this.jsonObject = jsonObject;
+    }
+
+    public BaseObject(String id, String collection, String json) {
+        this.id = id;
+        this.collection = collection;
+        JsonElement jsonElement = GSON.fromJson(json, JsonElement.class);
+        jsonObject = jsonElement.getAsJsonObject();
+    }
+
+    public BaseObject() {
+    }
 
     public String getId() {
         return id;
@@ -28,20 +45,32 @@ public class BaseObject {
         this.collection = collection;
     }
 
-    public JSONObject getJsonObject() {
+    public JsonObject getJsonObject() {
         if (jsonObject == null) {
-            jsonObject = new JSONObject();
+            jsonObject = new JsonObject();
         }
         return jsonObject;
     }
 
-    public void setJsonObject(JSONObject jsonObject) {
+    public void setJsonObject(JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
 
-    @SuppressWarnings("unchecked")
     public BaseObject put(String name, Object value) {
-        getJsonObject().put(name, value);
+        if(value==null){
+            getJsonObject().add(name, JsonNull.INSTANCE);
+        } else if (value instanceof String){
+            getJsonObject().addProperty(name, (String) value);
+        } else if (value instanceof Number){
+            getJsonObject().addProperty(name, (Number) value);
+        } else if (value instanceof Boolean){
+            getJsonObject().addProperty(name, (Boolean) value);
+        } else if (value instanceof Character){
+            getJsonObject().addProperty(name, (Character) value);
+        } else {
+            getJsonObject().add(name, GSON.toJsonTree(value));
+        }
+
         return this;
     }
 
@@ -49,6 +78,10 @@ public class BaseObject {
         if ("id".equalsIgnoreCase(name)) return getId();
         if ("collection".equalsIgnoreCase(name)) return getCollection();
         return getJsonObject().get(name);
+    }
+
+    public void remove(String name){
+        getJsonObject().remove(name);
     }
 
     public BaseObject save(JsonDB db) {
@@ -84,6 +117,10 @@ public class BaseObject {
         db.delete(getCollection(), getId());
         setId(null);
         return this;
+    }
+
+    public String toJSONString(){
+        return GSON.toJson(jsonObject);
     }
 
 }
