@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Nurmuhammad
@@ -122,12 +124,29 @@ public class JsonDB {
         }
     }
 
+    public String getContent(String collection, String id) {
+        if (!contains(collection, id)) {
+            return null;
+        }
+
+        try {
+            Path path = Paths.get(this.path.toString(), collection, id + EXT);
+            return new String(Files.readAllBytes(path));
+        } catch (IOException e) {
+            throw new JsonDBException("I/O exception.", e);
+        }
+    }
+
     public List<BaseObject> list(String collection) {
         List<BaseObject> list = new ArrayList<>();
-        ids(collection).forEach(id -> {
-            list.add(get(collection, id));
-        });
+        ids(collection).forEach(id -> list.add(get(collection, id)));
         return list;
+    }
+
+    public Map<String, String> map(String collection) {
+        Map<String, String> map = new LinkedHashMap<>();
+        ids(collection).forEach(id -> map.put(id, getContent(collection, id)));
+        return map;
     }
 
     public List<String> ids(String collection) {
